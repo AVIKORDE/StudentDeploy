@@ -1,1 +1,62 @@
+name: JAVA Student
 
+on: [workflow_dispatch]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Step 2: Setup JDK 17
+      - name: Setup JDK 17
+        uses: actions/setup-java@main
+        with:
+          java-version: 17
+          distribution: 'temurin'
+
+      # Step 2.5: Cache Maven dependencies
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      # Step 3: Build and Run Tests with Maven
+      - name: Build and Run Tests with Maven
+        run: mvn clean package -DskipTests
+
+      # Step 3.5: Verify build output
+      - name: List build artifacts
+        run: ls -la target/
+
+      # Step 4: Copy JAR file to target deployment directory
+      - name: Copy JAR file to deployment directory
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          source: "target/Student-Management-0.0.1-SNAPSHOT.jar"
+          target: "/home/ubuntu/Student/action-jar"
+          strip_components: 1
+
+      # Step 5: Restart Java Service
+      - name: Restart Java Service
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          script: |
+            sudo systemctl restart student.service
