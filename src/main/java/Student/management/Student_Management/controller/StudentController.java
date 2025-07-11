@@ -21,6 +21,10 @@ public class StudentController {
         return studentService.createStudent(student);
     }
 
+    @GetMapping
+    public List<Student> getAllStudents() {
+        return studentService.getAllStudents();
+    }
 
     // Get student by ID
     @GetMapping("/{id}")

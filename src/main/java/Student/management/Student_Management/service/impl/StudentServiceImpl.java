@@ -24,6 +24,10 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
+    public List<Student> getAllStudents() {
+        return studentRepository.findAll();
+    }
+    @Override
     public Student updateStudent(Long id, Student student) {
         if (studentRepository.existsById(id)) {
             student.setId(id);

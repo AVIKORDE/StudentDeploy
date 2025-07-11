@@ -10,4 +10,5 @@ public interface StudentService {
     public Student createStudent(Student student);
     public Student updateStudent(Long id, Student student);
     public boolean deleteStudent(Long id);
+    public List<Student> getAllStudents();
 }
